@@ -4,6 +4,13 @@
 **Date**: August 2, 2025
 **Jira**: https://issues.redhat.com/browse/ACM-21814
 
+## Test PR Status
+
+**Test PR Created**: 2025-08-02 17:59  
+**Branch**: test-pr-20250802-175941  
+**Purpose**: Demonstrate PR workflow and CI/CD pipeline integration  
+**Files Added**: `test-file.md` - Contains test documentation and PR demonstration content
+
 ## 1. Abstract
 
 This document describes the implemented solution to re-introduce the CI_VERSION environment variable into our container image build process following the migration from the CPass build system to Konflux.
