@@ -1,0 +1,74 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: configmap-to-env
+  labels:
+    app.kubernetes.io/version: "0.1"
+  annotations:
+    tekton.dev/pipelines.minVersion: "0.12.1"
+    tekton.dev/tags: "utility, configmap, environment"
+spec:
+  description: >-
+    This task reads specified keys from a Kubernetes ConfigMap
+    and outputs them as task results in KEY=VALUE format.
+    This allows subsequent tasks to easily use these values as environment variables.
+
+  params:
+    - name: configMapName
+      type: string
+      description: The name of the ConfigMap to read from.
+
+  results:
+    - name: CI_VERSION_2_10
+      description: The CI_VERSION value from the ConfigMap.
+
+    - name: CI_VERSION_2_9
+      description: The CI_VERSION value from the ConfigMap.
+
+  steps:
+    - name: extract-from-configmap
+      image: bitnami/kubectl:latest
+      script: |
+        #!/bin/sh
+        set -e
+
+        CI_VERSION_2_10_FILE="/tekton/results/CI_VERSION_2_10"
+        CI_VERSION_2_9_FILE="/tekton/results/CI_VERSION_2_9"
+
+        echo "---"
+        echo "Starting variable extraction from ConfigMap [$(params.configMapName)]"
+        echo "---"
+
+        # Initialize result files
+        > "${CI_VERSION_2_10_FILE}"
+        > "${CI_VERSION_2_9_FILE}"
+
+        if ! kubectl get configmap "$(params.configMapName)" > /dev/null; then
+          echo "Error: ConfigMap '$(params.configMapName)' does not exist."
+          exit 1
+        fi
+
+        # Extract CI_VERSION_2_10
+        ci_version_2_10=$(kubectl get configmap "$(params.configMapName)" --output=jsonpath="{.data['CI_VERSION_2_10']}" 2>/dev/null || echo "")
+        if [ -n "$ci_version_2_10" ]; then
+          echo "  Extracting: CI_VERSION_2_10=${ci_version_2_10}"
+          echo "$ci_version_2_10" > "${CI_VERSION_2_10_FILE}"
+        else
+          echo "  Warning: Key 'CI_VERSION_2_10' not found in ConfigMap '$(params.configMapName)' or its value is empty."
+        fi
+
+        # Extract CI_VERSION_2_9
+        ci_version_2_9=$(kubectl get configmap "$(params.configMapName)" --output=jsonpath="{.data['CI_VERSION_2_9']}" 2>/dev/null || echo "")
+        if [ -n "$ci_version_2_9" ]; then
+          echo "  Extracting: CI_VERSION_2_9=${ci_version_2_9}"
+          echo "$ci_version_2_9" > "${CI_VERSION_2_9_FILE}"
+        else
+          echo "  Warning: Key 'CI_VERSION_2_9' not found in ConfigMap '$(params.configMapName)' or its value is empty."
+        fi
+
+        echo "---"
+        echo "Extraction process completed."
+        echo "Results:"
+        echo "  CI_VERSION_2_10: $(cat ${CI_VERSION_2_10_FILE} 2>/dev/null || echo 'not found')"
+        echo "  CI_VERSION_2_9: $(cat ${CI_VERSION_2_9_FILE} 2>/dev/null || echo 'not found')"
+        echo "---"
