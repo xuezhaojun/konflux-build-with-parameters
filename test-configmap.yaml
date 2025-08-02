@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: build-parameters
+  namespace: zxue-tenant
+data:
+  CI_VERSION_2_10: "2.10.5"
+  CI_VERSION_2_9: "2.9.8"
+  # 可以添加更多的构建参数
+  # APP_NAME: "my-application"
+  # BUILD_ENV: "production"
