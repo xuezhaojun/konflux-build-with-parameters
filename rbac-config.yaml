@@ -1,0 +1,25 @@
+# TO FIX: Error from server (Forbidden): configmaps "build-parameters" is forbidden: User "system:serviceaccount:zxue-tenant:build-pipeline-konflux-build-with-parameters-aa260" cannot get resource "configmaps" in API group "" in the namespace "zxue-tenant"
+Error: ConfigMap 'build-parameters' does not exist.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: zxue-tenant
+  name: configmap-reader
+rules:
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: configmap-reader-binding
+  namespace: zxue-tenant
+subjects:
+- kind: ServiceAccount
+  name: build-pipeline-konflux-build-with-parameters-aa260
+  namespace: zxue-tenant
+roleRef:
+  kind: Role
+  name: configmap-reader
+  apiGroup: rbac.authorization.k8s.io
