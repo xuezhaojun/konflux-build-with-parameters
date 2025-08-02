@@ -13,15 +13,8 @@ ENV CI_VERSION=${CI_VERSION}
 # The variable is now available for use
 RUN echo "Building with version: $CI_VERSION"
 
-# Copy pipeline files to demonstrate this is a pipeline catalog
-COPY pipelines/ /pipelines/
-COPY .tekton/ /.tekton/
-
 # Use existing user from base image (no network dependencies)
 USER 1001
-
-# Set working directory
-WORKDIR /pipelines
 
 # Default command that does nothing but keeps container running if needed
 CMD ["sleep", "infinity"]
