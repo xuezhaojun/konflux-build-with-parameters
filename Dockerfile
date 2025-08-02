@@ -4,6 +4,15 @@
 
 FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
 
+# Accept the build argument from the pipeline
+ARG CI_VERSION
+
+# Set the environment variable to make it available at runtime
+ENV CI_VERSION=${CI_VERSION}
+
+# The variable is now available for use
+RUN echo "Building with version: $CI_VERSION"
+
 # Copy pipeline files to demonstrate this is a pipeline catalog
 COPY pipelines/ /pipelines/
 COPY .tekton/ /.tekton/
